@@ -41,62 +41,83 @@ public class AnagramDictionary {
     private Random random = new Random();
 
     private HashMap<String, ArrayList<String>> lettersToWord = new HashMap<>();
+    private List<String> words = new ArrayList<>();
 
     public AnagramDictionary(InputStream wordListStream) throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(wordListStream));
         String line;
         while((line = in.readLine()) != null) {
             String word = line.trim();
-            //
-            //  Your code here
-            //
+            //words.add(word);
+
+            String temp = sortLetters(word);
+            if(!lettersToWord.containsKey(temp)) {
+                lettersToWord.put(temp, new ArrayList<String>());
+            }
+            lettersToWord.get(temp).add(word);
         }
     }
 
     public boolean isGoodWord(String word, String base) {
-        //
-        // Your code here
-        //
-        return true;
+        return getAnagramsWithOneMoreLetter(base).contains(word);
+//        if(base.equals(word)) {
+//
+//            return false;
+//        }
+//        return isAnagram(word, base);
     }
 
     public List<String> getAnagrams(String targetWord) {
         ArrayList<String> result = new ArrayList<String>();
-        //
-        // Your code here
-        //
-        return result;
+        String sorted = sortLetters(targetWord);
+        if(!lettersToWord.containsKey(sorted)) {
+            return new ArrayList<>();
+        }
+        return lettersToWord.get(sorted);
+//        for(String w : words) {
+//            if (isAnagram(w, targetWord)) {
+//                result.add(w);
+//            }
+//        }
+//        return result;
     }
-
     @VisibleForTesting
     static boolean isAnagram(String first, String second) {
-        //
-        // Your code here
-        //
-        return true;
+     if(sortLetters(first).equals(sortLetters(second))) {
+         return true;
+     }
+        return false;
     }
+
 
     @VisibleForTesting
     static String sortLetters(String input) {
         char[] chars = input.toCharArray();
-        //
-        // Your code here
-        //
-        return "";
+        Arrays.sort(chars);
+
+        return new String(chars);
     }
 
     public List<String> getAnagramsWithOneMoreLetter(String word) {
         ArrayList<String> result = new ArrayList<String>();
-        //
-        // Your code here
-        //
+        for(char c = 'a'; c <= 'z'; c++) {
+            String temp = sortLetters(word + c);
+            getAnagrams(temp);
+            result.addAll(getAnagrams(temp));
+        }
         return result;
     }
 
     public String pickGoodStarterWord() {
-        //
-        // Your code here
-        //
-        return "stop";
+        String goodWord;
+        List<String> anagrams = new ArrayList<>();
+        do {
+            goodWord = words.get(Math.abs(random.nextInt()) % words.size());
+            if (goodWord.length() < DEFAULT_WORD_LENGTH || goodWord.length() > MAX_WORD_LENGTH) {
+                continue;
+            }
+            anagrams = getAnagramsWithOneMoreLetter(goodWord);
+        } while (anagrams.size() < MIN_NUM_ANAGRAMS);
+        return goodWord;
     }
 }
